@@ -3,7 +3,7 @@
         <span class="text-zinc-600">Welcome{ auth()->user()->name }}!</span>
         <div class="flex justify-between items-center">
             <h1 class="text-2xl font-black mt-2 mb-4">Module</h1>
-            <a href="{{ route('subjects.create') }}"
+            <a href="{{ route('courses.create') }}"
                 class="py-2 font-bold px-6 rounded bg-indigo-100 text-indigo-600 text-sm">Create</a>
         </div>
         @if (session()->has('success'))
@@ -24,7 +24,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($subjects as $row)
+                    @forelse ($courses as $row)
                         <tr>
                             <td class="text-zinc-600 py-4 border-b px-6 text-center">{{ $loop->iteration }}</td>
                             <td class="text-zinc-600 py-4 border-b px-6">{{ $row->created_at->diffForHumans() }} <span
@@ -35,11 +35,11 @@
                             <td class="text-zinc-600 py-4 border-b px-6">{{ $row->level }}</td>
                             <td class="text-zinc-600 py-4 border-b px-6">
                                 <div class="flex gap-1">
-                                    <a href="{{ route('subjects.show', $row->id) }}"
+                                    <a href="{{ route('courses.show', $row->id) }}"
                                         class="py-2 font-bold px-6 rounded bg-zinc-100 text-zinc-600 text-sm">Preview</a>
-                                    <a href="{{ route('subjects.edit', $row->id) }}"
+                                    <a href="{{ route('courses.edit', $row->id) }}"
                                         class="py-2 font-bold px-6 rounded bg-amber-100 text-amber-600 text-sm">Edit</a>
-                                    <form action="{{ route('subjects.destroy', $row->id) }}" method="POST"
+                                    <form action="{{ route('courses.destroy', $row->id) }}" method="POST"
                                         onsubmit="return confirm('Sure?')">
                                         @method('DELETE')
                                         @csrf

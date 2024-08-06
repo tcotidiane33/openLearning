@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'cinetpay' => [
+        'site_id' => env('CINETPAY_SITE_ID'),
+        'api_key' => env('CINETPAY_API_KEY'),
+    ],
+
 ];

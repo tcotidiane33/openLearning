@@ -2,87 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Subject;
-use App\Models\UserReadModule;
+use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class SubjectController extends Controller
+class CourseController extends Controller
 {
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function index()
+    {
+        $courses = Course::where('is_published', true)->paginate(12);
+        return view('courses.index', compact('courses'));
+    }
+
+    public function show(Course $course)
+    {
+        return view('courses.show', compact('course'));
+    }
+
     public function create()
     {
-        return view('subjects.create');
+        return view('courses.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validatedData =  $request->validate([
-            'subject' => ['required', 'max:255'],
-            'title' => ['required', 'max:255'],
-            'level' => ['required', 'max:255'],
-            'content' => ['required', 'max:65535'],
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'required',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
-        Subject::create($validatedData);
+        $course = Auth::user()->instructedCourses()->create($validated);
 
-        return to_route('index')->with('success', 'Réussir');
+        return redirect()->route('courses.show', $course)->with('success', 'Course created successfully.');
     }
 
-    public function show(Subject $subject)
+    public function edit(Course $course)
     {
-        // $hasRead = UserReadModule::where('user_id', auth()->id())->where('subject_id', $subject->id)->first();
-        UserReadModule::updateOrInsert(['user_id' => auth()->id()], ['subject_id' => $subject->id]);
-        return view('subjects.show', ['subject' => $subject]);
+        $this->authorize('update', $course);
+        return view('courses.edit', compact('course'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Subject $subject)
+    public function update(Request $request, Course $course)
     {
-        return view('subjects.edit', ['subject' => $subject]);
-    }
+        $this->authorize('update', $course);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Subject $subject)
-    {
-        $validatedData =  $request->validate([
-            'subject' => ['required', 'max:255'],
-            'title' => ['required', 'max:255'],
-            'level' => ['required', 'max:255'],
-            'content' => ['required', 'max:65535'],
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'required',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
-        $subject->update($validatedData);
+        $course->update($validated);
 
-        return to_route('index')->with('success', 'Réussir');
+        return redirect()->route('courses.show', $course)->with('success', 'Course updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Subject $subject)
+    public function destroy(Course $course)
     {
-        $subject->delete();
-        return to_route('index')->with('success', 'Réussir');
-    }
+        $this->authorize('delete', $course);
 
-    public function level($level)
-    {
-        $modules = Subject::latest()->orderBy('title', 'asc')->where('level', $level)->get();
-        return view('level', ['level' => $level, 'modules' => $modules]);
-    }
+        $course->delete();
 
-    public function subject($subject)
-    {
-        $modules = Subject::latest()->orderBy('title', 'asc')->where('subject', $subject)->get();
-        return view('subject', ['subject' => $subject, 'modules' => $modules]);
+        return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
     }
 }

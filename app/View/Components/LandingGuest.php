@@ -2,7 +2,7 @@
 
 namespace App\View\Components;
 
-use App\Models\Subject;
+use App\Models\Course;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -22,8 +22,8 @@ class LandingGuest extends Component
      */
     public function render(): View|Closure|string
     {
-        $subjects = Subject::groupBy('subject')->get('subject');
-        $levels = Subject::groupBy('level')->get('level');
-        return view('components.landing-guest', ['subjects' => $subjects, 'levels' => $levels]);
+        $courses = Course::groupBy('subject')->get('subject');
+        $levels = Course::groupBy('level')->get('level');
+        return view('components.landing-guest', ['courses' => $courses, 'levels' => $levels]);
     }
 }

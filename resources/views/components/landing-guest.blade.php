@@ -8,7 +8,7 @@
             Learniverse propose une variété de cours sur différentes matières et niveaux d'enseignement.
         </p>
         <div class="flex flex-wrap justify-center gap-2 mb-8">
-            @forelse ([...$levels, ...$subjects] as $row)
+            @forelse ([...$levels, ...$courses] as $row)
                 <span
                     class="md:text-lg py-2 px-4 rounded-full border text-zinc-800">{{ $row->level ? $row->level : $row->subject }}</span>
             @empty

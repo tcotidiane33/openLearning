@@ -2,7 +2,7 @@
 
 namespace App\View\Components;
 
-use App\Models\Subject;
+use App\Models\Course;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -23,7 +23,7 @@ class LandingAdmin extends Component
     public function render(): View|Closure|string
     {
         return view('components.landing-admin', [
-            "subjects" => Subject::orderBy('level', 'asc')->orderBy('subject', 'asc')->orderBy('created_at', 'desc')->get()
+            "courses" => Course::orderBy('level', 'asc')->orderBy('subject', 'asc')->orderBy('created_at', 'desc')->get()
         ]);
     }
 }

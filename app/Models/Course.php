@@ -23,6 +23,16 @@ class Course extends Model
         'estimated_duration'
     ];
 
+    public function isCompleted($user)
+    {
+        $totalLessons = $this->lessons()->count();
+        $completedLessons = $user->progress()
+            ->whereIn('lesson_id', $this->lessons()->pluck('id'))
+            ->where('completed', true)
+            ->count();
+
+        return $totalLessons === $completedLessons;
+    }
     public function instructor()
     {
         return $this->belongsTo(User::class, 'instructor_id');

@@ -2,59 +2,89 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'role',
-        'bio',
-        'photo',
-        'password',
+        'name', 'email', 'password', 'role', 'bio', 'photo', 'avatar',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
 
-    /**
-     * Get all of the subjects for the User
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function has_reads(): HasMany
+    public function enrolledCourses()
     {
-        return $this->hasMany(UserReadModule::class);
+        return $this->belongsToMany(Course::class, 'enrollments');
+    }
+
+    public function completedCourses()
+    {
+        return $this->belongsToMany(Course::class, 'course_completions')
+                    ->withTimestamps();
+    }
+
+    public function instructedCourses()
+    {
+        return $this->hasMany(Course::class, 'instructor_id');
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    // public function enrolledCourses()
+    // {
+    //     return $this->belongsToMany(Course::class, 'enrollments')->withTimestamps();
+    // }
+
+    public function progress()
+    {
+        return $this->hasMany(Progress::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function forumThreads()
+    {
+        return $this->hasMany(ForumThread::class);
+    }
+
+    public function forumPosts()
+    {
+        return $this->hasMany(ForumPost::class);
     }
 }
