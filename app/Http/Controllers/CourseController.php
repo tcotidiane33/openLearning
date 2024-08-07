@@ -3,15 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::where('is_published', true)->paginate(12);
-        return view('courses.index', compact('courses'));
+        $query = Course::where('is_published', true);
+
+        if ($request->has('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        $query->orderBy($sortField, $sortDirection);
+
+        $courses = $query->paginate(12);
+        $categories = Category::all();
+
+        return view('courses.index', compact('courses', 'categories'));
     }
 
     public function show(Course $course)
@@ -21,7 +38,8 @@ class CourseController extends Controller
 
     public function create()
     {
-        return view('courses.create');
+        $categories = Category::all();
+        return view('courses.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -31,6 +49,7 @@ class CourseController extends Controller
             'description' => 'required',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            'estimated_duration' => 'required|string',
         ]);
 
         $course = Auth::user()->instructedCourses()->create($validated);
@@ -41,7 +60,8 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         $this->authorize('update', $course);
-        return view('courses.edit', compact('course'));
+        $categories = Category::all();
+        return view('courses.edit', compact('course', 'categories'));
     }
 
     public function update(Request $request, Course $course)
@@ -53,6 +73,7 @@ class CourseController extends Controller
             'description' => 'required',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            'estimated_duration' => 'required|string',
         ]);
 
         $course->update($validated);
@@ -67,5 +88,50 @@ class CourseController extends Controller
         $course->delete();
 
         return redirect()->route('courses.index')->with('success', 'Course deleted successfully.');
+    }
+    
+    public function storeRating(Request $request, Course $course)
+{
+    $validated = $request->validate([
+        'rating' => 'required|integer|min:1|max:5',
+        'comment' => 'nullable|string|max:1000', // Ajoutez cette ligne si vous voulez permettre des commentaires optionnels
+    ]);
+
+    $review = $course->reviews()->updateOrCreate(
+        ['user_id' => Auth::id()],
+        [
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'] ?? null, // Ajoutez cette ligne si vous incluez des commentaires
+        ]
+    );
+
+    $course->updateAverageRating();
+
+    return back()->with('success', 'Rating added successfully');
+}
+public function instructorCourses()
+{
+    $courses = auth()->user()->instructedCourses()->paginate(10);
+    return view('instructor.courses', compact('courses'));
+}
+
+    public function storeReview(Request $request, Course $course)
+    {
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        $review = $course->reviews()->updateOrCreate(
+            ['user_id' => Auth::id()],
+            [
+                'rating' => $validated['rating'],
+                'comment' => $validated['comment']
+            ]
+        );
+
+        $course->updateAverageRating();
+
+        return back()->with('success', 'Review added successfully');
     }
 }

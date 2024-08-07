@@ -23,6 +23,7 @@
                             <p class="text-3xl font-bold">${{ number_format($totalRevenue, 2) }}</p>
                         </div>
                     </div>
+                    
 
                     <h3 class="font-semibold text-lg mb-2">Recent Enrollments</h3>
                     <table class="w-full">
@@ -39,6 +40,37 @@
                                     <td>{{ $enrollment->user_name }}</td>
                                     <td>{{ $enrollment->course_title }}</td>
                                     <td>{{ $enrollment->created_at->format('Y-m-d H:i') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Student
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Course
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($recentEnrollments as $enrollment)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $enrollment->user->name }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $enrollment->course->title }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $enrollment->created_at->format('M d, Y') }}
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

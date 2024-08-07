@@ -1,38 +1,33 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ForumController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
-use App\Http\Controllers\EnrollmentController;
-use App\Http\Controllers\ProgressController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\QuizController;
-use App\Http\Controllers\ForumController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\CertificateController;
-use App\Http\Controllers\SearchController;
-use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ReportController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SubscriptionController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/home', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile routes
@@ -42,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Course routes
     Route::resource('courses', CourseController::class);
+    Route::post('/courses/{course}/reviews', [CourseController::class, 'storeReview'])->name('courses.reviews.store');
 
     // Lesson routes
     Route::resource('courses.lessons', LessonController::class)->shallow();
@@ -53,19 +49,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Progress routes
     Route::post('/courses/{course}/lessons/{lesson}/complete', [ProgressController::class, 'completeLesson'])->name('lessons.complete');
 
+    // Quiz routes
+    Route::get('/lessons/{lesson}/quiz', [QuizController::class, 'show'])->name('quizzes.show');
+    Route::post('/quizzes/{quiz}/submit', [QuizController::class, 'submit'])->name('quizzes.submit');
+
     // Review routes
     Route::post('/courses/{course}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/courses/{course}/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/courses/{course}/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
-    // Payment routes
-    Route::post('/payments/process', [PaymentController::class, 'process'])->name('payments.process');
-    Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
-    Route::get('/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
-
-    // Quiz routes
-    Route::get('/lessons/{lesson}/quiz', [QuizController::class, 'show'])->name('quizzes.show');
-    Route::post('/quizzes/{quiz}/submit', [QuizController::class, 'submit'])->name('quizzes.submit');
+    // Subscription routes
+    Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::post('/subscriptions', [SubscriptionController::class, 'subscribe'])->name('subscriptions.subscribe');
+    Route::delete('/subscriptions', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 
     // Forum routes
     Route::get('/courses/{course}/forum', [ForumController::class, 'index'])->name('forum.index');
@@ -85,26 +81,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Search route
     Route::get('/search', [SearchController::class, 'index'])->name('search');
 
-    // Subscription routes
-    Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-    Route::post('/subscriptions', [SubscriptionController::class, 'subscribe'])->name('subscriptions.subscribe');
-    Route::delete('/subscriptions', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
-
-    // Report routes (for instructors and admins)
-    Route::middleware(['can:view-reports'])->group(function () {
-        Route::get('/reports/course-enrollments/{course}', [ReportController::class, 'courseEnrollments'])->name('reports.courseEnrollments');
-        Route::get('/reports/course-revenue/{course}', [ReportController::class, 'courseRevenue'])->name('reports.courseRevenue');
-        Route::get('/reports/instructor-dashboard', [ReportController::class, 'instructorDashboard'])->name('reports.instructorDashboard');
+    // Instructor routes
+    Route::middleware(['can:access-instructor'])->group(function () {
+        Route::get('/instructor/dashboard', [ReportController::class, 'instructorDashboard'])->name('instructor.dashboard');
+        Route::get('/instructor/courses', [CourseController::class, 'instructorCourses'])->name('instructor.courses');
+        Route::get('/instructor/reports/course-enrollments/{course}', [ReportController::class, 'courseEnrollments'])->name('instructor.reports.courseEnrollments');
+        Route::get('/instructor/reports/course-revenue/{course}', [ReportController::class, 'courseRevenue'])->name('instructor.reports.courseRevenue');
     });
 
     // Admin routes
     Route::middleware(['can:access-admin'])->group(function () {
         Route::get('/admin/dashboard', [ReportController::class, 'adminDashboard'])->name('admin.dashboard');
-        // Add other admin routes as needed
+        Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+        Route::get('/admin/courses', [AdminController::class, 'courses'])->name('admin.courses');
+        Route::get('/admin/reports', [AdminController::class, 'reports'])->name('admin.reports');
     });
 });
 
-// Webhook for payment provider (not behind auth middleware)
+// Payment routes (some might need to be outside auth middleware)
+Route::post('/payments/process', [PaymentController::class, 'process'])->name('payments.process');
+Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
+Route::get('/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
 Route::post('/webhook/payment', [PaymentController::class, 'webhook'])->name('webhook.payment');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -1,31 +1,33 @@
-<main class="pt-28 pb-10">
+<main class="pt-28 pb-10 bg-gray-900 text-white">
     <div class="container">
-        <span class="text-zinc-600">Bienvenue {{ auth()->user()->name }}!</span>
-        <h1 class="text-2xl font-black mt-2 mb-4">Des recommandations pour vous!</h1>
-        <div class="grid lg:grid-cols-4 sm:grid-cols-2 gap-4">
+        <span class="text-gray-400">Bienvenue, {{ auth()->user()->name }}!</span>
+        <h1 class="text-3xl font-black mt-2 mb-8">Recommandations personnalisées</h1>
+        <div class="grid lg:grid-cols-3 sm:grid-cols-2 gap-6">
             @forelse ($modules as $row)
-                <a href="{{ route('courses.show', $row->id) }}" class="p-6 rounded-xl border">
-                    <h2 class="text-xl font-bold mb-1">{{ $row->title }}</h2>
-                    <div class="flex items-center justify-between gap-1">
-                        <p class="text-sm">Niveau: {{ $row->level }}</p>
-                        <span class="text-xs py-1 px-2 rounded-full bg-indigo-600 text-white">{{ $row->subject }}</span>
+                <a href="{{ route('courses.show', $row->id) }}" class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-purple-500 transition duration-300">
+                    <h2 class="text-xl font-bold mb-2">{{ $row->title }}</h2>
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-sm text-gray-400">Niveau: {{ $row->level }}</p>
+                        <span class="text-xs py-1 px-3 rounded-full bg-purple-600 text-white">{{ $row->subject }}</span>
                     </div>
                 </a>
             @empty
-                <p>Vide</p>
+                <p class="text-gray-400">Aucun module disponible pour le moment</p>
             @endforelse
         </div>
     </div>
 </main>
-<section class="py-20">
+<section class="py-20 bg-gray-800">
     <div class="container">
-        <h1 class="text-2xl font-black mb-4">Filtrer par niveau / matière:</h1>
-        <div class="flex flex-wrap gap-2">
+        <h2 class="text-3xl font-black mb-8 text-white">Explorer par catégorie</h2>
+        <div class="flex flex-wrap gap-4">
             @forelse ([...$levels, ...$courses] as $row)
                 <a href="{{ route($row->level ? 'level' : 'subject', $row->level ? $row->level : $row->subject) }}"
-                    class="text-lg py-2 px-4 rounded-full border text-zinc-800">{{ $row->level ? $row->level : $row->subject }}</a>
+                   class="text-lg py-2 px-6 rounded-full bg-gray-700 text-purple-300 hover:bg-purple-600 hover:text-white transition duration-300">
+                    {{ $row->level ? $row->level : $row->subject }}
+                </a>
             @empty
-                <p>Vide</p>
+                <p class="text-gray-400">Aucune catégorie disponible</p>
             @endforelse
         </div>
     </div>

@@ -8,6 +8,26 @@ use Illuminate\Http\Request;
 
 class LessonController extends Controller
 {
+    public function index(Request $request)
+{
+    $query = Course::query();
+
+    if ($request->has('category')) {
+        $query->where('category_id', $request->category);
+    }
+
+    if ($request->has('level')) {
+        $query->where('level', $request->level);
+    }
+
+    $sortField = $request->get('sort', 'created_at');
+    $sortDirection = $request->get('direction', 'desc');
+    $query->orderBy($sortField, $sortDirection);
+
+    $courses = $query->paginate(15);
+
+    return view('courses.index', compact('courses'));
+}
     public function show(Course $course, Lesson $lesson)
     {
         $this->authorize('view', $lesson);

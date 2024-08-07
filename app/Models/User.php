@@ -43,15 +43,16 @@ class User extends Authenticatable
         return $this->hasMany(Enrollment::class);
     }
 
-    // public function enrolledCourses()
-    // {
-    //     return $this->belongsToMany(Course::class, 'enrollments')->withTimestamps();
-    // }
-
     public function progress()
     {
         return $this->hasMany(Progress::class);
     }
+
+
+    public function isInstructor()
+{
+    return $this->role === 'instructor'; // Ajustez selon votre logique d'attribution des rôles
+}
 
     public function reviews()
     {
@@ -86,5 +87,34 @@ class User extends Authenticatable
     public function forumPosts()
     {
         return $this->hasMany(ForumPost::class);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function hasRole($role)
+    {
+        if (is_string($role)) {
+            return $this->roles->contains('name', $role);
+        }
+
+        return (bool) $role->intersect($this->roles)->count();
+    }
+
+    public function hasAnyRole($roles)
+    {
+        if (is_string($roles)) {
+            return $this->hasRole($roles);
+        }
+
+        foreach ($roles as $role) {
+            if ($this->hasRole($role)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
