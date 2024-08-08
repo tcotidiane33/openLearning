@@ -15,7 +15,7 @@
         "livewire/livewire": "^2.12",
         "open-admin-org/open-admin": "^1.0",
         "php-ai/php-ml": "^0.10.0",
-        "spatie/laravel-permission": "^5.10",
+        "spatie/laravel-permission": "^6.9",
         "stripe/stripe-php": "^15.5"
     },
     "require-dev": {

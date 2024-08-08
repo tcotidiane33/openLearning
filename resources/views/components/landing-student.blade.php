@@ -11,7 +11,10 @@
                         <div class="p-4">
                             <h3 class="font-bold text-lg mb-2">{{ $course->title }}</h3>
                             <p class="text-gray-600 text-sm mb-4">Progression : {{ $course->user_progress }}%</p>
-                            <a href="{{ route('courses.show', $course) }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Continuer</a>
+                            <a href="{{ route('courses.show', $course) ?? '#' }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                Continuer
+                            </a>
+                            {{-- <a href="{{ route('courses.show', $course) }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Continuer</a> --}}
                         </div>
                     </div>
                 @endforeach
@@ -27,7 +30,11 @@
                         <div class="p-4">
                             <h3 class="font-bold text-lg mb-2">{{ $course->title }}</h3>
                             <p class="text-gray-600 text-sm mb-4">{{ Str::limit($course->description, 100) }}</p>
-                            <a href="{{ route('courses.show', $course) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">En savoir plus</a>
+                            <a href="#" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">En savoir plus</a>
+                            <a href="{{ route('courses.show', $course) ?? '#' }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                Continuer
+                            </a>
+                            {{-- <a href="{{ route('courses.show', $course) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">En savoir plus</a> --}}
                         </div>
                     </div>
                 @endforeach

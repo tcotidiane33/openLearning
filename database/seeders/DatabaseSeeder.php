@@ -15,23 +15,33 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'user']);
-
-        $admin = \App\Models\User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
+        $this->call([
+            UsersTableSeeder::class,
+            CategoriesTableSeeder::class,
+            CoursesTableSeeder::class,
+            LessonsTableSeeder::class,
+            EnrollmentsTableSeeder::class,
+            ReviewsTableSeeder::class,
+            RolesAndPermissionsSeeder::class,
         ]);
 
-        $admin->syncRoles('admin');
+        // Role::create(['name' => 'admin']);
+        // Role::create(['name' => 'user']);
 
-        $user = \App\Models\User::factory()->create([
-            'name' => 'User',
-            'email' => 'user@example.com',
-        ]);
+        // $admin = \App\Models\User::factory()->create([
+        //     'name' => 'Admin',
+        //     'email' => 'admin@example.com',
+        // ]);
 
-        $user->syncRoles('user');
+        // $admin->syncRoles('admin');
 
-        $this->call([SubjectSeeder::class]);
+        // $user = \App\Models\User::factory()->create([
+        //     'name' => 'User',
+        //     'email' => 'user@example.com',
+        // ]);
+
+        // $user->syncRoles('user');
+
+        // $this->call([SubjectSeeder::class]);
     }
 }

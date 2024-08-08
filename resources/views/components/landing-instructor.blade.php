@@ -13,8 +13,13 @@
                             <h3 class="font-bold text-lg mb-2">{{ $course->title }}</h3>
                             <p class="text-gray-600 text-sm mb-2">Étudiants inscrits : {{ $course->students_count }}</p>
                             <p class="text-gray-600 text-sm mb-4">Note moyenne : {{ number_format($course->average_rating, 1) }}/5</p>
-                            <a href="{{ route('courses.edit', $course) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">Modifier</a>
-                            <a href="{{ route('courses.show', $course) }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Voir</a>
+                            <a href="{{ route('courses.edit', $course) ?? '#' }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                                Modifier
+                            </a><a href="{{ route('courses.show', $course) ?? '#' }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                Voir
+                            </a>
+                            {{-- <a href="{{ route('courses.edit', $course) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">Modifier</a>
+                            <a href="{{ route('courses.show', $course) }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Voir</a> --}}
                         </div>
                     </div>
                 @endforeach
@@ -22,3 +27,4 @@
         </section>
     </main>
 </div>
+

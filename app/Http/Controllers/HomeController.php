@@ -10,6 +10,33 @@ use Illuminate\Support\Facades\Auth;
 class HomeController extends Controller
 {
     public function index()
+{
+    $user = auth()->user();
+    
+    if (!$user) {
+        // L'utilisateur n'est pas connecté, afficher la page d'accueil pour les invités
+        $featuredCourses = Course::where('featured', true)->take(4)->get();
+        $categories = Category::withCount('courses')->get();
+        return view('home', compact('featuredCourses', 'categories'));
+    }
+
+    if ($user->hasRole('student')) {
+        $enrolledCourses = $user->enrolledCourses()->paginate(5);
+        $recommendedCourses = Course::inRandomOrder()->take(4)->get();
+        return view('home', compact('enrolledCourses', 'recommendedCourses'));
+    } elseif ($user->hasRole('instructor')) {
+        $courses = $user->instructedCourses()->withCount('students')->get();
+        return view('home', compact('courses'));
+    } elseif ($user->hasRole('admin')) {
+        $courses = Course::withCount('students')->get();
+        $users = User::count();
+        return view('home', compact('courses', 'users'));
+    }
+
+    // Si l'utilisateur n'a aucun rôle spécifique, rediriger vers une page par défaut
+    return redirect()->route('dashboard');
+}
+    public function authentificate()
     {
         if (Auth::check()) {
             if (Auth::user()->hasRole('student')) {
@@ -50,4 +77,5 @@ class HomeController extends Controller
         $categories = Category::withCount('courses')->get();
         return view('home', compact('featuredCourses', 'categories'));
     }
+   
 }

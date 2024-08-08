@@ -64,7 +64,8 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-xl font-semibold mb-2">Nombre total d'utilisateurs</h2>
-                    <p class="text-3xl font-bold text-blue-600">{{ $users }}</p>
+                    <p class="text-3xl font-bold text-blue-600">$users </p>
+                    {{-- <p class="text-3xl font-bold text-blue-600">{{ $users }}</p> --}}
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-xl font-semibold mb-2">Nombre total de cours</h2>

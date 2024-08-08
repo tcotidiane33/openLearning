@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\AdminController;
@@ -12,24 +13,44 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\DashboardController;
+// use App\Http\Controllers\ComponentsController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionController;
 
+Route::get('/about', function () {
+    return view('welcome');
+});
+Route::get('/breeze', function () {
+    return view('dashboard');
+});
 // Route::get('/', function () {
-//     return view('welcome');
+//     return view('home');
 // });
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Route::get('/', [HomeController::class, 'index'])->name('home');
+// Route::middleware('guest')->group(function () {
+//     Route::controller(AuthController::class)->group(function () {
+//         Route::get('/login', 'login')->name('login');
+//         Route::get('/register', 'register')->name('register');
 
+//         Route::post('/login', 'authenticate')->name('authenticate');
+//         Route::post('/register', 'newUser')->name('newUser');
+//     });
+// });
+Route::resource('/', HomeController::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/home', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/components-showcase', function () {
+        return view('components/components-showcase');
+    })->name('components.showcase');
 
+    Route::delete('/logout', [AuthController::class, 'logout'])->name('logout');
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -42,10 +63,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Lesson routes
     Route::resource('courses.lessons', LessonController::class)->shallow();
 
+    // Course routes
+    Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+    Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('courses.edit');
+    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+
     // Enrollment routes
     Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('courses.enroll');
     Route::delete('/courses/{course}/unenroll', [EnrollmentController::class, 'unenroll'])->name('courses.unenroll');
 
+     // Category routes
+     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+ 
     // Progress routes
     Route::post('/courses/{course}/lessons/{lesson}/complete', [ProgressController::class, 'completeLesson'])->name('lessons.complete');
 
