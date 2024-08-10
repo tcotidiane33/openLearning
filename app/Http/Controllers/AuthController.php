@@ -56,9 +56,9 @@ class AuthController extends Controller
         $credentials['password'] = bcrypt($request->password);
 
         $user = User::create($credentials);
-        $user->syncRoles('user');
-
-        return to_route('login')->with('success_register', 'Inscrit avec succès, veuillez vous connecter !');
+        $user->assignRole('student');
+    
+        return to_route('login')->with('success_register', 'Inscrit avec succès, veuillez vous connecter !');
     }
 
     public function logout(Request $request): RedirectResponse

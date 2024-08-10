@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'Open Admin',
+    'name' => 'Kondro Networks',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>Open</b> Admin',
+    'logo' => '<b>KDN</b> Admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +34,7 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo-mini' => '<b>OA</b>',
+    'logo-mini' => '<b>KDN</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -108,9 +108,11 @@ return [
     | You can specify a controller for `login` `logout` and other auth routes.
     |
     */
+   
     'auth' => [
 
         'controller' => App\Admin\Controllers\AuthController::class,
+
 
         'guard' => 'admin',
 
@@ -145,6 +147,14 @@ return [
             'auth/logout',
         ],
     ],
+
+    'controllers' => [
+        'courses' => App\Admin\Controllers\CourseController::class,
+        'lessons' => App\Admin\Controllers\LessonController::class,
+        'categories' => App\Admin\Controllers\CategoryController::class,
+        'quizzes' => App\Admin\Controllers\QuizController::class,
+    'progress' => App\Admin\Controllers\ProgressController::class,
+        ],
 
     /*
     |--------------------------------------------------------------------------
@@ -411,5 +421,13 @@ return [
     */
     'extensions' => [
 
+        'log-viewer' => [
+        'bypass_protected_urls' => true,
+        //'bypass_protected_urls_find' => ['.'],          // default ['.']
+        //'bypass_protected_urls_replace' => ['[dot]'],   // default ['[dot]']
+        ],
+        'media-manager' => [
+            'disk' => 'public'   // Pointe vers le disque défini dans config/filesystems.php
+        ],
     ],
 ];

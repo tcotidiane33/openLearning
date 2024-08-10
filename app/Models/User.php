@@ -6,10 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
+// use Laravel\Cashier\Billable;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, Notifiable, HasFactory;
+    use HasApiTokens, Notifiable, HasFactory; 
+    // use Billable;
+    use HasRoles;
 
     protected $fillable = [
         'name', 'email', 'password', 'role', 'bio', 'photo', 'avatar',
@@ -25,7 +30,7 @@ class User extends Authenticatable
 
     public function enrolledCourses()
     {
-        return $this->belongsToMany(Course::class, 'enrollments');
+        return $this->belongsToMany(Course::class, 'enrollments', 'user_id', 'course_id');
     }
 
     public function completedCourses()
@@ -95,15 +100,19 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    // public function hasRole($role)
+    // {
+    //     if (is_string($role)) {
+    //         return $this->roles->contains('name', $role);
+    //     }
+
+    //     return (bool) $role->intersect($this->roles)->count();
+    // }
+
     public function hasRole($role)
-    {
-        if (is_string($role)) {
-            return $this->roles->contains('name', $role);
-        }
-
-        return (bool) $role->intersect($this->roles)->count();
-    }
-
+{
+    return $this->role === $role;
+}
     public function hasAnyRole($roles)
     {
         if (is_string($roles)) {
@@ -118,4 +127,19 @@ class User extends Authenticatable
 
         return false;
     }
+
+    public function subscription()
+{
+    return $this->hasOne(Subscription::class)->latest();
+}
+// Méthode helper pour vérifier l'abonnement
+public function hasActiveSubscription()
+{
+    return $this->subscription && $this->subscription->isActive();
+}
+
+    // public function instructedCourses()
+    // {
+    //     return $this->hasMany(Course::class, 'instructor_id');
+    // }
 }

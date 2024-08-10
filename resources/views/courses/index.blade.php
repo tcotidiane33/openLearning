@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 mt-4 ">
         <div class="max-w-7xl  mx-auto sm:px-6 lg:px-8">
             <div class="mb-6 flex justify-between items-center">
                 <div class="mt-4 pt-4">
@@ -18,7 +18,7 @@
                 </div>
                 @can('create', App\Models\Course::class)
                     <a href="{{ route('courses.create') }}"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4  rounded">
                         Create New Course
                     </a>
                 @endcan
@@ -50,7 +50,7 @@
                 });
             </script> --}}
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class=" overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @forelse ($courses as $course)
@@ -78,7 +78,7 @@
                                 </div>
                             </div>
                         @empty
-                            <p>No courses found.</p>
+                            <p class="text-purple-600">No courses found.</p>
                         @endforelse
                     </div>
 

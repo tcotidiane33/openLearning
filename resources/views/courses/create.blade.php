@@ -1,6 +1,6 @@
 <x-main-layout title="Kondronetworks - Ajouter un cours">
-    <main class="pt-28 pb-10 container">
-        <div class="max-w-2xl mx-auto">
+    <main class="pt-28 justify-center pb-10 container">
+        <div class="max-w-3xl mx-auto p-5 bg-purple-800">
             <div class="flex justify-between items-center gap-2">
                 <h1 class="text-2xl font-black mt-2 mb-4">Ajouter un cours</h1>
                 <a href="{{ route('courses.index') }}"

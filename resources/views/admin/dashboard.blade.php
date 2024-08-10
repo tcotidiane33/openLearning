@@ -1,82 +1,213 @@
+
 <x-main-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Admin Dashboard') }}
         </h2>
     </x-slot>
+    <div class="bg-gray-900 text-white min-h-screen">
+        <main class="pt-28 pb-10">
+            <div class="container mx-auto px-4">
+                <span class="text-gray-400">Bienvenue, {{ auth()->user()->name }}!</span>
+                <x-admin-nav></x-admin-nav>
+                <div class=" mx-auto sm:px-6 mt-5 mb-6 lg:px-8">
+                
+                    <h1 class="text-3xl font-black mb-2">Gestion des modules</h1>
+                    <a href="{{ route('courses.create') }}" class="py-2 px-6 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold transition duration-300">
+                        Créer un module
+                    </a>
+                </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-blue-100 p-4 rounded">
-                            <h3 class="font-semibold text-lg">Total Users</h3>
-                            <p class="text-3xl font-bold">{{ $totalUsers }}</p>
-                        </div>
-                        <div class="bg-green-100 p-4 rounded">
-                            <h3 class="font-semibold text-lg">Total Courses</h3>
-                            <p class="text-3xl font-bold">{{ $totalCourses }}</p>
-                        </div>
-                        <div class="bg-yellow-100 p-4 rounded">
-                            <h3 class="font-semibold text-lg">Total Revenue</h3>
-                            <p class="text-3xl font-bold">${{ number_format($totalRevenue, 2) }}</p>
-                        </div>
+                @if (session()->has('success'))
+                    <div class="py-2 px-4 rounded bg-green-800 text-green-200 mb-6 border border-green-600">
+                        {{ session('success') }}
                     </div>
-                    
+                @endif
 
-                    <h3 class="font-semibold text-lg mb-2">Recent Enrollments</h3>
+                <div class="w-full overflow-x-auto bg-gray-800 rounded-xl mt-2 mb-12">
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="text-left">User</th>
-                                <th class="text-left">Course</th>
-                                <th class="text-left">Date</th>
+                                <th class="text-sm font-medium text-gray-400 border-b border-gray-700 py-4 px-6 text-left">No</th>
+                                <th class="text-sm font-medium text-gray-400 text-left border-b border-gray-700 py-4 px-6">Créé le</th>
+                                <th class="text-sm font-medium text-gray-400 text-left border-b border-gray-700 py-4 px-6">Sujet</th>
+                                <th class="text-sm font-medium text-gray-400 text-left border-b border-gray-700 py-4 px-6">Titre</th>
+                                <th class="text-sm font-medium text-gray-400 text-left border-b border-gray-700 py-4 px-6">Niveau</th>
+                                <th class="text-sm font-medium text-gray-400 text-left border-b border-gray-700 py-4 px-6">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($recentEnrollments as $enrollment)
+                            @forelse ($courses as $row)
                                 <tr>
-                                    <td>{{ $enrollment->user_name }}</td>
-                                    <td>{{ $enrollment->course_title }}</td>
-                                    <td>{{ $enrollment->created_at->format('Y-m-d H:i') }}</td>
+                                    <td class="text-gray-300 py-4 border-b border-gray-700 px-6">{{ $loop->iteration }}</td>
+                                    <td class="text-gray-300 py-4 border-b border-gray-700 px-6">
+                                        {{ $row->created_at->diffForHumans() }}
+                                        <span class="text-xs py-1 px-2 rounded-full bg-gray-700 text-gray-300 ml-2">{{ $row->created_at }}</span>
+                                    </td>
+                                    <td class="text-gray-300 py-4 border-b border-gray-700 px-6">{{ $row->subject }}</td>
+                                    <td class="text-gray-300 py-4 border-b border-gray-700 px-6">{{ $row->title }}</td>
+                                    <td class="text-gray-300 py-4 border-b border-gray-700 px-6">{{ $row->level }}</td>
+                                    <td class="text-gray-300 py-4 border-b border-gray-700 px-6">
+                                        <div class="flex gap-2">
+                                            <a href="{{ route('courses.show', $row->id) }}" class="py-1 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm transition duration-300">Aperçu</a>
+                                            <a href="{{ route('courses.edit', $row->id) }}" class="py-1 px-3 rounded bg-yellow-600 hover:bg-yellow-700 text-white text-sm transition duration-300">Modifier</a>
+                                            <form action="{{ route('courses.destroy', $row->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr ?')">
+                                                @method('DELETE')
+                                                @csrf
+                                                <button class="py-1 px-3 rounded bg-red-600 hover:bg-red-700 text-white text-sm transition duration-300">Supprimer</button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-gray-400">Aucun module disponible</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                </div>
 
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Student
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Course
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($recentEnrollments as $enrollment)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ $enrollment->user->name }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ $enrollment->course->title }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ $enrollment->created_at->format('M d, Y') }}
-                                    </td>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold mb-2 text-gray-800">Nombre total d'utilisateurs</h2>
+                        <p class="text-3xl font-bold text-blue-600">{{ $totalUsers }}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold mb-2 text-gray-800">Nombre total de cours</h2>
+                        <p class="text-3xl font-bold text-green-600">{{ $courses->count() }}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold mb-2 text-gray-800">Revenus totaux</h2>
+                        <p class="text-3xl font-bold text-purple-600">{{ number_format($totalRevenue, 2) }} €</p>
+                    </div>
+                    <div class="bg-red-100 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2">Total Price</h3>
+                        <p class="text-3xl font-bold">${{ number_format($totalPrice, 2) }}</p>
+                    </div>
+                </div>
+
+                <section>
+                    <h2 class="text-2xl font-semibold mb-4 text-white">Cours récents</h2>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Titre</th>
+                                    <th class="py-3 px-6 text-left">Instructeur</th>
+                                    <th class="py-3 px-6 text-center">Étudiants</th>
+                                    <th class="py-3 px-6 text-center">Prix</th>
+                                    <th class="py-3 px-6 text-center">Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                                @foreach ($courses->take(5) as $course)
+                                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                        <td class="py-3 px-6 text-left whitespace-nowrap">{{ $course->title }}</td>
+                                        <td class="py-3 px-6 text-left">{{ $course->instructor->name }}</td>
+                                        <td class="py-3 px-6 text-center">{{ $course->students_count }}</td>
+                                        <td class="py-3 px-6 text-center">{{ number_format($course->price, 2) }} €</td>
+                                        <td class="py-3 px-6 text-center">
+                                            <a href="{{ route('courses.show', $course) }}" class="text-blue-600 hover:text-blue-900 mr-2">Voir</a>
+                                            <a href="{{ route('courses.edit', $course) }}" class="text-yellow-600 hover:text-yellow-900">Modifier</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <div class="py-12 ">
+        <div class=" mx-auto sm:px-6 lg:px-8">
+            <div class="bg-gray-800 overflow-auto shadow-sm sm:rounded-lg">
+                <div class="p-6 bg-blue border-b border-gray-200">
+                   
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Recent Users</h3>
+                            <ul class="divide-y divide-gray-200">
+                                @foreach($recentUsers as $user)
+                                    <li class="py-2">{{ $user->name }} ({{ $user->email }})</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Recent Courses</h3>
+                            <ul class="divide-y divide-gray-200">
+                                @foreach($recentCourses as $course)
+                                    <li class="py-2">{{ $course->title }} by {{ $course->instructor->name }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4">Monthly Revenue</h3>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">User Growth</h3>
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Revenue Chart
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($monthlyRevenue->pluck('month')) !!},
+                datasets: [{
+                    label: 'Monthly Revenue',
+                    data: {!! json_encode($monthlyRevenue->pluck('revenue')) !!},
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // User Growth Chart
+        new Chart(document.getElementById('userGrowthChart'), {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($userGrowth->pluck('month')) !!},
+                datasets: [{
+                    label: 'New Users',
+                    data: {!! json_encode($userGrowth->pluck('total')) !!},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+    @endpush
 </x-main-layout>
+
+
+

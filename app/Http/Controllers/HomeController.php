@@ -5,77 +5,90 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Category;
+use App\Models\Announcement;
+use App\Models\Enrollment;
+use App\Models\Payment;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     public function index()
-{
-    $user = auth()->user();
-    
-    if (!$user) {
-        // L'utilisateur n'est pas connecté, afficher la page d'accueil pour les invités
-        $featuredCourses = Course::where('featured', true)->take(4)->get();
-        $categories = Category::withCount('courses')->get();
-        return view('home', compact('featuredCourses', 'categories'));
-    }
-
-    if ($user->hasRole('student')) {
-        $enrolledCourses = $user->enrolledCourses()->paginate(5);
-        $recommendedCourses = Course::inRandomOrder()->take(4)->get();
-        return view('home', compact('enrolledCourses', 'recommendedCourses'));
-    } elseif ($user->hasRole('instructor')) {
-        $courses = $user->instructedCourses()->withCount('students')->get();
-        return view('home', compact('courses'));
-    } elseif ($user->hasRole('admin')) {
-        $courses = Course::withCount('students')->get();
-        $users = User::count();
-        return view('home', compact('courses', 'users'));
-    }
-
-    // Si l'utilisateur n'a aucun rôle spécifique, rediriger vers une page par défaut
-    return redirect()->route('dashboard');
-}
-    public function authentificate()
     {
         if (Auth::check()) {
-            if (Auth::user()->hasRole('student')) {
-                return $this->studentDashboard();
-            } elseif (Auth::user()->hasRole('instructor')) {
-                return $this->instructorDashboard();
-            } elseif (Auth::user()->hasRole('admin')) {
-                return $this->adminDashboard();
-            }
+            return $this->dashboard();
         }
         return $this->guestHome();
     }
 
-    private function studentDashboard()
+    public function dashboard()
     {
-        $enrolledCourses = Auth::user()->enrolledCourses()->get();
+        $user = Auth::user();
+        if ($user->hasRole('student')) {
+            return $this->studentDashboard();
+        } elseif ($user->hasRole('instructor')) {
+            return $this->instructorDashboard();
+        } elseif ($user->hasRole('admin')) {
+            return $this->adminDashboard();
+        }
+        return redirect()->route('home');
+    }
+
+    public function studentDashboard()
+    {
+        $user = Auth::user();
+        $enrolledCourses = $user->enrolledCourses()->get();
         $recommendedCourses = Course::inRandomOrder()->limit(4)->get();
-        return view('home', compact('enrolledCourses', 'recommendedCourses'));
+        $latestAnnouncement = Announcement::latest()->first();
+        $completedCourses = $enrolledCourses->where('user_progress', 100);
+        $completedCoursesCount = $completedCourses->count();
+        $totalLearningTime = $enrolledCourses->sum('total_duration');
+        $certificatesCount = $user->certificates()->count();
+
+        return view('student.dashboard', compact(
+            'enrolledCourses',
+            'recommendedCourses',
+            'latestAnnouncement',
+            'completedCourses',
+            'completedCoursesCount',
+            'totalLearningTime',
+            'certificatesCount'
+        ));
     }
 
-    private function instructorDashboard()
+    public function instructorDashboard()
     {
-        $courses = Auth::user()->courses()->withCount('students')->get();
-        return view('home', compact('courses'));
-    }
+        $user = Auth::user();
+        $courses = $user->instructedCourses()->withCount('students')->get();
+        $totalStudents = $courses->sum('students_count');
+        $totalRevenue = $courses->sum('revenue');
+        $latestAnnouncement = Announcement::getLatestPublished();
+        $recentEnrollments = $courses->flatMap(function ($course) {
+            return $course->enrollments()->with('user')->latest()->take(5)->get();
+        })->sortByDesc('created_at')->take(10);
 
-    private function adminDashboard()
+        return view('instructor.dashboard', compact(
+            'user',
+            'courses',
+            'totalStudents',
+            'totalRevenue',
+            'latestAnnouncement',
+            'recentEnrollments'
+        ));
+    }
+    public function adminDashboard()
     {
-        $courses = Course::withCount('students')->get();
-        $users = User::count();
-        return view('home', compact('courses', 'users'));
+        $dashboardController = new \App\Http\Controllers\Admin\DashboardController();
+        return $dashboardController->index();
     }
 
     private function guestHome()
     {
         $featuredCourses = Course::where('featured', true)->take(4)->get();
-        // $featuredCourses = Course::orderBy('created_at', 'desc')->take(4)->get();
         $categories = Category::withCount('courses')->get();
-        return view('home', compact('featuredCourses', 'categories'));
+        $courses = Course::all();
+        $latestAnnouncement = Announcement::getLatestPublished();
+
+        return view('home', compact('featuredCourses', 'categories', 'courses', 'latestAnnouncement'));
     }
-   
 }

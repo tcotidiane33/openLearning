@@ -9,12 +9,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    @if(auth()->user()->subscription('default'))
+                    @if(auth()->user()->hasActiveSubscription())
                         <h3 class="font-semibold text-lg mb-4">Current Subscription</h3>
-                        <p>Plan: {{ auth()->user()->subscription('default')->name }}</p>
-                        <p>Status: {{ auth()->user()->subscription('default')->stripe_status }}</p>
+                        <p>Plan: {{ auth()->user()->subscription->plan->name }}</p>
+                        <p>Status: {{ auth()->user()->subscription->status }}</p>
 
-                        @if(auth()->user()->subscription('default')->onGracePeriod())
+                        @if(auth()->user()->subscription->onGracePeriod())
                             <form action="{{ route('subscriptions.resume') }}" method="POST" class="mt-4">
                                 @csrf
                                 <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
